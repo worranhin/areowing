@@ -1,5 +1,8 @@
-node_modules
+ Reanode_modules
 .DS_Store
 dist
 dist-ssr
 *.local
+
+node_modules/
+package-lock.json
