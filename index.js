@@ -14,13 +14,16 @@ const config/*: Phaser.Types.Core.GameConfig*/ = {
     type: Phaser.AUTO,  // 自行决定使用 Canvas or WebGL
     parent: 'game-container',
     physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { y: 300 },
-        debug: false
-      }
+        default: 'arcade',
+        arcade: {
+            gravity: {
+                y: 0,
+                x: 0,
+            },
+            debug: true,
+        }
     },
     scene: [Game]
-  };
+};
 
 new Phaser.Game(config);
