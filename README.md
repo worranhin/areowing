@@ -1,6 +1,6 @@
 # Aero Wing
 
-A flight shooting game.
+A shooting game (STG).
 
 ## RoadMap
 
