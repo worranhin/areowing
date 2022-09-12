@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import Carrot from "../game/Carrot.js";
 
 export default class Game extends Phaser.Scene
 {
+    hp = 5
     /** @type {Phaser.GameObjects.Triangle} */
     player
     /** @type {Phaser.Physics.Arcade.Group} */
@@ -11,9 +11,15 @@ export default class Game extends Phaser.Scene
     cursors
     /** @type {Phaser.Physics.Arcade.Group} */
     carrots
+    /** @type {Phaser.GameObjects.Text} */
+    hpText
 
     constructor() {
         super('game');
+    }
+
+    init() {
+        this.hp = 5;
     }
 
     preload()
@@ -67,10 +73,14 @@ export default class Game extends Phaser.Scene
         this.physics.world.wrapObject(this.player.body);
         this.physics.world.wrapObject(this.player);
 
-        // create carrot
-        this.carrots = this.physics.add.group({classType: Carrot});
-        this.carrots.get(300, 300, 'carrot');
-        this.physics.add.overlap(this.player, this.carrots, this.handleCollect, undefined, this);
+        // create carrot //
+        // this.carrots = this.physics.add.group({classType: Carrot});
+        // this.carrots.get(300, 300, 'carrot');
+        // this.physics.add.overlap(this.player, this.carrots, this.handleCollect, undefined, this);
+
+        // create text //
+        const textStyle = {color: "white", fontSize: "24px"};
+        this.hpText = this.add.text(240, 10, "hp: 5", textStyle).setScrollFactor(0).setOrigin(0.5, 0);
 
     }
 
@@ -102,7 +112,9 @@ export default class Game extends Phaser.Scene
             }
         });
 
-        // player control //
+        this.physics.world.wrapObject(this.player);  // 传送门，让飞机出边界后从另一边回来
+
+        // 玩家控制 player control //
         const playerAcc = 500;  // 加速度
 
         // 左右控制
@@ -123,7 +135,12 @@ export default class Game extends Phaser.Scene
             this.player.body.setAccelerationY(0);
         }
 
-        this.physics.world.wrapObject(this.player);
+        // 结束判断 //
+        if(this.hp < 1) {
+            // console.log("Game Over!");
+            this.scene.start("game-over");
+        }
+
     }
 
     handleCollect(player, carrot) {
@@ -133,5 +150,7 @@ export default class Game extends Phaser.Scene
     handleCrush(player, rock) {
         this.rocks.killAndHide(rock);
         this.physics.world.disable(rock);
+        this.hp--;
+        this.hpText.setText(`hp: ${this.hp}`);
     }
 }

@@ -1,9 +1,10 @@
 // import { FirstGameScene } from './first-scene';
 // import BackgroundExample from './src/Example/background-test.js';
 // import CircleExample from './src/Example/Circle.js'
-import Game from './src/scenes/Game.js';
 import Phaser from 'phaser';
 import './style.css';
+import Game from './src/scenes/Game.js';
+import GameOver from './src/scenes/GameOver.js';
 
 const Width = window.innerWidth;
 const Height = window.innerHeight;
@@ -23,7 +24,7 @@ const config/*: Phaser.Types.Core.GameConfig*/ = {
             debug: true,
         }
     },
-    scene: [Game]
+    scene: [Game, GameOver],
 };
 
 new Phaser.Game(config);
