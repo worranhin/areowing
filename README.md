@@ -11,4 +11,6 @@ A shooting game (STG).
 
 ## Credits
 
-- Using [template](https://github.com/supertorpe/vite-phaser-starter) provided by supertorpe
+- Using [Phaser](http://phaser.io/) as framework.
+- Using template provided by [supertorpe](https://github.com/supertorpe/vite-phaser-starter).
+- Using audio from [kenney](https://kenney.nl/).
