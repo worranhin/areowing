@@ -72,18 +72,21 @@ export default class Game extends Phaser.Scene
         // create text //
         const textStyle = {color: "white", fontSize: "24px"};
         this.hpText = this.add.text(240, 10, "hp: 5", textStyle).setScrollFactor(0).setOrigin(0.5, 0);
+        this.timeText = this.add.text(0, 10, "last time: 0 s", textStyle);
+        this.timeText.setX(this.hpText.x + this.hpText.displayWidth * 0.5 + this.timeText.displayWidth * 0.5 + 20);  // TODO: 写入工具库
 
     }
 
     update(time, delta) {
         // 更新持续时间 //
         this.lastTime += delta;
-        console.log(this.lastTime / 1000);
+        const displayTime = Math.floor(this.lastTime / 1000);
+        this.timeText.setText(`last time: ${displayTime} s`);
 
         // 刷新 rocks: rocks 移出屏幕时重新生成 //
         this.rocks.children.iterate(child => {
             /** @type {Phaser.Physics.Arcade.Sprite} */
-            const rock = child;
+            const rock = child;  // TODO: 类型不一致？
             const HEIGHT = this.cameras.main.height;
             const WIDTH = this.cameras.main.width;
             const scrollY = this.cameras.main.scrollY;
@@ -107,6 +110,7 @@ export default class Game extends Phaser.Scene
             }
         });
 
+        // TODO: 改为推回边界内，而不是传送
         this.physics.world.wrapObject(this.player);  // 传送门，让飞机出边界后从另一边回来
 
         // 玩家控制 player control //
@@ -132,14 +136,8 @@ export default class Game extends Phaser.Scene
 
         // 结束判断 //
         if(this.hp < 1) {
-            // console.log("Game Over!");
-            this.scene.start("game-over");
+            this.scene.start("game-over", {score: this.lastTime});
         }
-
-    }
-
-    handleCollect(player, carrot) {
-        this.carrots.killAndHide(carrot);
     }
 
     handleCrush(player, rock) {
