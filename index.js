@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import './style.css';
 import Game from './src/scenes/Game.js';
 import GameOver from './src/scenes/GameOver.js';
+import GameStart from './src/scenes/GameStart.js';
 
 const Width = window.innerWidth;
 const Height = window.innerHeight;
@@ -24,7 +25,7 @@ const config/*: Phaser.Types.Core.GameConfig*/ = {
             debug: true,
         }
     },
-    scene: [Game, GameOver],
+    scene: [GameStart, Game, GameOver],
 };
 
 new Phaser.Game(config);
