@@ -35,7 +35,7 @@ export default class Game extends Phaser.Scene
         // this.add.image(Width / 2, Height / 2, 'sky');
         // 创建实体
         const triangle = this.add.triangle(WIDTH / 2, HEIGHT - 100, 0, 100, 100, 100, 50, 0, 0x2233ee);
-        const rect = this.add.rectangle(WIDTH / 2, HEIGHT - 200, 50, 50, 0xff3333, 1);
+        // const rect = this.add.rectangle(WIDTH / 2, HEIGHT - 200, 50, 50, 0xff3333, 1);
 
         // create and init rocks
         this.rocks = this.physics.add.group();
@@ -81,35 +81,24 @@ export default class Game extends Phaser.Scene
             const rock = child;
             const HEIGHT = this.cameras.main.height;
             const WIDTH = this.cameras.main.width;
-            let scrollY = this.cameras.main.scrollY;
+            const scrollY = this.cameras.main.scrollY;
 
-            // if(rock.y >= scrollY + HEIGHT + rock.body.height / 2) {
-            //     rock.body.x = Phaser.Math.Between(0.1 * WIDTH, 0.9 * WIDTH);
-            //     rock.body.y = scrollY - rock.body.height - Phaser.Math.Between(50, 100);
-            //     const velocity = Phaser.Math.Between(50, 100);
-            //     rock.body.setVelocity(0, velocity);
-            //     console.log("bling!");
-            // }
+            // TODO: 这2段代码也许还能优化
+            const isDeactivated = rock.active === false;
+            const isOutBound = rock.y >= scrollY + HEIGHT + rock.body.height / 2;
 
-            let state = 0;  // 状态机，用于下面的分支语句
-            if(rock.active === false) state += 1;  // 若被 deactivate +1
-            if(rock.y >= scrollY + HEIGHT + rock.body.height / 2) state += 2;  // 若出界则 +2
+            if(isDeactivated) {
+                // 若 deactivated 需要重新激活
+                rock.setActive(true);
+                rock.setVisible(true);
+                this.physics.world.enable(rock);
+            }
 
-            switch (state) {
-                case 0:  // 无事发生
-                    break;
-                case 1:  // deactivate
-                case 1 + 2:  // deactivate and 出界
-                    // 若被 deactivate 需要重新激活
-                    rock.setActive(true);
-                    rock.setVisible(true);
-                    this.physics.world.enable(rock);
-                case 2:  // 出界
-                    rock.body.x = Phaser.Math.Between(0.1 * WIDTH, 0.9 * WIDTH);
-                    rock.body.y = scrollY - rock.body.height - Phaser.Math.Between(50, 100);
-                    const velocity = Phaser.Math.Between(50, 100);
-                    rock.body.setVelocity(0, velocity);
-                    break;
+            if(isDeactivated || isOutBound) {
+                rock.body.x = Phaser.Math.Between(0.1 * WIDTH, 0.9 * WIDTH);
+                rock.body.y = scrollY - rock.body.height - Phaser.Math.Between(50, 100);
+                const velocity = Phaser.Math.Between(50, 100);
+                rock.body.setVelocity(0, velocity);
             }
         });
 
