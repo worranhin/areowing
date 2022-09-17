@@ -49,7 +49,7 @@ export default class Game extends Phaser.Scene
         this.rocks = this.physics.add.group();
         for(let i = 0; i < 5; i++) {
             let x = Phaser.Math.Between(0.2 * WIDTH, 0.8 * WIDTH);
-            let y = 100 + i * 100;
+            let y = 0;
             const rock = this.rocks.create(x, y, 'rock');
             rock.setScale(0.2);
             rock.body.updateFromGameObject();
@@ -78,17 +78,25 @@ export default class Game extends Phaser.Scene
     }
 
     update(time, delta) {
+        const HEIGHT = this.cameras.main.height;
+        const WIDTH = this.cameras.main.width;
+
+        // 结束判断 //
+        if(this.hp < 1) {
+            this.scene.start("game-over", {score: this.lastTime});
+        }
+
+
         // 更新持续时间 //
         this.lastTime += delta;
         const displayTime = Math.floor(this.lastTime / 1000);
         this.timeText.setText(`last time: ${displayTime} s`);
 
+
         // 刷新 rocks: rocks 移出屏幕时重新生成 //
         this.rocks.children.iterate(child => {
             /** @type {Phaser.Physics.Arcade.Sprite} */
             const rock = child;  // TODO: 类型不一致？
-            const HEIGHT = this.cameras.main.height;
-            const WIDTH = this.cameras.main.width;
             const scrollY = this.cameras.main.scrollY;
 
             // TODO: 这2段代码也许还能优化
@@ -105,39 +113,50 @@ export default class Game extends Phaser.Scene
             if(isDeactivated || isOutBound) {
                 rock.body.x = Phaser.Math.Between(0.1 * WIDTH, 0.9 * WIDTH);
                 rock.body.y = scrollY - rock.body.height - Phaser.Math.Between(50, 100);
-                const velocity = Phaser.Math.Between(50, 100);
+                const velocity = Phaser.Math.Between(50, 100) + this.lastTime / 100;  // 每隔 1s 加 10 速度
                 rock.body.setVelocity(0, velocity);
             }
         });
 
-        // TODO: 改为推回边界内，而不是传送
-        this.physics.world.wrapObject(this.player);  // 传送门，让飞机出边界后从另一边回来
 
         // 玩家控制 player control //
         const playerAcc = 500;  // 加速度
 
+        let accX = 0;
+        let accY = 0;
+
         // 左右控制
         if(this.cursors.left.isDown) {
-            this.player.body.setAccelerationX(-playerAcc);
+            accX -= playerAcc;
         } else if(this.cursors.right.isDown) {
-            this.player.body.setAccelerationX(playerAcc);
-        } else {
-            this.player.body.setAccelerationX(0);
+            accX += playerAcc;
         }
 
         // 上下控制
         if(this.cursors.up.isDown) {
-            this.player.body.setAccelerationY(-playerAcc);
+            accY -= playerAcc;
         } else if(this.cursors.down.isDown) {
-            this.player.body.setAccelerationY(playerAcc);
-        } else {
-            this.player.body.setAccelerationY(0);
+            accY += playerAcc;
         }
 
-        // 结束判断 //
-        if(this.hp < 1) {
-            this.scene.start("game-over", {score: this.lastTime});
+        // 出界判断
+        const playerX = this.player.x;
+        const playerY = this.player.y;
+        const boundForce = 50;  // 退回的力道
+
+        if(playerX < 0) {
+            accX += -playerX * boundForce;
+        } else if(playerX > WIDTH) {
+            accX += (WIDTH - playerX) * boundForce;
         }
+
+        if(playerY < 0) {
+            accY += -playerY * boundForce;
+        } else if(playerY > HEIGHT) {
+            accY += (HEIGHT - playerY) * boundForce;
+        }
+
+        this.player.body.setAcceleration(accX, accY);
     }
 
     handleCrush(player, rock) {
