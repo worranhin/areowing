@@ -4,10 +4,13 @@ A shooting game (STG).
 
 ## RoadMap
 
-- [ ] 搭建大致框架 | build the Framework
-- [ ] controller
+- [x] 搭建大致框架 | build the Framework
+- [x] controller
 - [ ] enemy
 - [ ] item
+- [ ] shooting
+- [ ] refactor to ts
+- [ ] story footprint
 
 ## Credits
 
