@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import SceneKeys from "../consts/SceneKeys";
 
 export default class Game extends Phaser.Scene
 {
@@ -11,7 +12,7 @@ export default class Game extends Phaser.Scene
     private timeText!: Phaser.GameObjects.Text;
 
     constructor() {
-        super('game');
+        super(SceneKeys.Game);
     }
 
     init() {
@@ -60,11 +61,6 @@ export default class Game extends Phaser.Scene
         body.setBounce(0.8, 0.8);  // 设置玩家反弹
         this.physics.world.setBounds(0, 0, WIDTH, HEIGHT);  // 设置游戏边界
 
-        // 绑定镜头
-        // this.cameras.main.startFollow(this.player);
-        // set dead zone
-        // this.cameras.main.setDeadzone(this.scale.width * 0.8, this.scale.height * 0.8);
-
         // create text //
         const textStyle = {color: "white", fontSize: "24px"};
         this.hpText = this.add.text(240, 10, "hp: 5", textStyle).setScrollFactor(0).setOrigin(0.5, 0);
@@ -80,7 +76,7 @@ export default class Game extends Phaser.Scene
 
         // 结束判断 //
         if(this.hp < 1) {
-            this.scene.start("game-over", {score: this.lastTime});
+            this.scene.start(SceneKeys.GameOver, {score: this.lastTime});
         }
 
 

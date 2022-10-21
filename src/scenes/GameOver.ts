@@ -1,8 +1,9 @@
 import Phaser from "phaser";
+import SceneKeys from "../consts/SceneKeys";
 
 export default class GameOver extends Phaser.Scene {
     constructor() {
-        super('game-over');
+        super(SceneKeys.GameOver);
     }
 
     create(data: { score: number; }) {
@@ -24,7 +25,7 @@ export default class GameOver extends Phaser.Scene {
         this.moveBelow(tipsText, scoreText, gap);
 
         this.input.keyboard.once("keydown-SPACE", () => {
-            this.scene.start("game");
+            this.scene.start(SceneKeys.Game);
         })
     }
 
