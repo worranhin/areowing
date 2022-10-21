@@ -5,7 +5,7 @@ export default class GameOver extends Phaser.Scene {
         super('game-over');
     }
 
-    create(data) {
+    create(data: { score: number; }) {
         const WIDTH = this.scale.width;
         const HEIGHT = this.scale.height;
         const centerX = WIDTH * 0.5;
@@ -29,7 +29,7 @@ export default class GameOver extends Phaser.Scene {
     }
 
     // TODO: 写成工具库
-    moveBelow(obj, target, gap) {
+    private moveBelow(obj: Phaser.GameObjects.Text, target: Phaser.GameObjects.Text, gap: number) {
         obj.setY(target.y + target.displayHeight * 0.5 +obj.displayHeight * 0.5 + gap);
     }
 }

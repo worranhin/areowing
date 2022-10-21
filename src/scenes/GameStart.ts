@@ -26,7 +26,7 @@ export default class GameStart extends Phaser.Scene {
         })
     }
 
-    moveBelow(obj, target, gap) {
+    private moveBelow(obj: Phaser.GameObjects.Text, target: Phaser.GameObjects.Text, gap: number) {
         obj.setY(target.y + target.displayHeight * 0.5 +obj.displayHeight * 0.5 + gap);
     }
 }
