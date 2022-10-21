@@ -1,6 +1,7 @@
 enum TextureKeys
 {
-    Rock = 'rock'
+    Rock = 'rock',
+    Plane = 'plane'
 }
 
 export default TextureKeys;

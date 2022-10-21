@@ -12,10 +12,8 @@ export default class Preloader extends Phaser.Scene
     preload()
     {
         this.load.path = './assets/';  // 路径前缀
-        // this.load.image('sky', 'sky.png');
-        // this.load.image('bomb', 'bomb.png');
         this.load.image(TextureKeys.Rock, 'rock.png');
-        // this.load.image('carrot', 'star.png');
+        this.load.image(TextureKeys.Plane, 'ship_0001.png');
         this.load.audio(AudioKeys.Impact, "impact_sound.ogg");
     }
 

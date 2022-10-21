@@ -1,13 +1,14 @@
 import Phaser from "phaser";
 import SceneKeys from "../consts/SceneKeys";
+import TextureKeys from "../consts/TextureKeys";
+import Plane from "../game/Plane";
 
 export default class Game extends Phaser.Scene
 {
     private hp = 5;
     private lastTime = 0;
-    private player!: Phaser.GameObjects.Triangle
     private rocks!: Phaser.Physics.Arcade.Group
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
+    private plane!: Phaser.Physics.Arcade.Sprite
     private hpText!: Phaser.GameObjects.Text
     private timeText!: Phaser.GameObjects.Text;
 
@@ -22,8 +23,7 @@ export default class Game extends Phaser.Scene
 
     preload()
     {
-        // create keyboard cursor input
-        this.cursors = this.input.keyboard.createCursorKeys();
+        // preload
     }
 
     create()
@@ -32,14 +32,14 @@ export default class Game extends Phaser.Scene
         const HEIGHT = this.cameras.main.height;
 
         // 创建实体
-        const triangle = this.add.triangle(WIDTH / 2, HEIGHT - 100, 0, 100, 100, 100, 50, 0, 0x2233ee);
+        // const triangle = this.add.triangle(WIDTH / 2, HEIGHT - 100, 0, 100, 100, 100, 50, 0, 0x2233ee);
 
         // create and init rocks
         this.rocks = this.physics.add.group();
         for(let i = 0; i < 5; i++) {
-            const x = Phaser.Math.Between(0.2 * WIDTH, 0.8 * WIDTH);
-            const y = 0;
-            const rock = this.rocks.create(x, y, 'rock');
+            const x = Phaser.Math.Between(0 * WIDTH, 1 * WIDTH);
+            const y = Phaser.Math.Between(-200, -100);
+            const rock = this.rocks.create(x, y, TextureKeys.Rock);
             rock.setScale(0.2);
             rock.body.updateFromGameObject();
             const rockSpeed = Phaser.Math.Between(50, 100);
@@ -48,11 +48,12 @@ export default class Game extends Phaser.Scene
 
 
         // 物理系统 //
-        this.player = this.physics.add.existing(triangle, false);  // 创建玩家实例
-        this.physics.add.collider(this.player, this.rocks, this.handleCrush, undefined, this);  // 添加 player-rocks 碰撞检测
-        const body = this.player.body as Phaser.Physics.Arcade.Body;
-        body.setBounce(0.8, 0.8);  // 设置玩家反弹
-        this.physics.world.setBounds(0, 0, WIDTH, HEIGHT);  // 设置游戏边界
+        this.plane = new Plane(this, WIDTH * 0.5, HEIGHT - 100, TextureKeys.Plane);
+        this.add.existing(this.plane);
+        this.physics.add.collider(this.plane, this.rocks, this.handleCrush, undefined, this);  // 碰撞处理
+        const body = this.plane.body as Phaser.Physics.Arcade.Body;
+        body.setBounce(0.7, 0.7);  // 设置反弹系数
+        // this.physics.world.setBounds(0, 0, WIDTH, HEIGHT);  // 设置游戏边界
 
         // create text //
         const textStyle = {color: "white", fontSize: "24px"};
@@ -64,22 +65,38 @@ export default class Game extends Phaser.Scene
 
     //TODO: 拆分模块（太长了）
     update(_time: number, delta: number) {
-        const HEIGHT = this.cameras.main.height;
-        const WIDTH = this.cameras.main.width;
-
         // 结束判断 //
         if(this.hp < 1) {
             this.scene.start(SceneKeys.GameOver, {score: this.lastTime});
         }
-
 
         // 更新持续时间 //
         this.lastTime += delta;
         const displayTime = Math.floor(this.lastTime / 1000);
         this.timeText.setText(`last time: ${displayTime} s`);
 
+        this.wrapRocks();
+        this.wrapPlane();
+    }
 
-        // 刷新 rocks: rocks 移出屏幕时重新生成 //
+    private handleCrush(_player: Phaser.GameObjects.GameObject, rock: Phaser.GameObjects.GameObject) {
+        // rock disappear
+        this.rocks.killAndHide(rock);
+        this.physics.world.disable(rock);
+
+        // decrease hp
+        this.hp--;
+        this.hpText.setText(`hp: ${this.hp}`);
+
+        // sound
+        this.sound.play('impact');
+    }
+
+    // 刷新 rocks: rocks 移出屏幕时重新生成 //
+    private wrapRocks() {
+        const WIDTH = this.scale.width;
+        const HEIGHT = this.scale.height;
+
         this.rocks.children.iterate((child) => {
             const rock = child as Phaser.Physics.Arcade.Sprite;  // TODO: 类型不一致？
             const scrollY = this.cameras.main.scrollY;
@@ -104,59 +121,36 @@ export default class Game extends Phaser.Scene
                 body.setVelocity(0, velocity);
             }
         });
-
-
-        // 玩家控制 player control //
-        const playerAcc = 500;  // 加速度
-
-        let accX = 0;
-        let accY = 0;
-
-        // 左右控制
-        if(this.cursors.left.isDown) {
-            accX -= playerAcc;
-        } else if(this.cursors.right.isDown) {
-            accX += playerAcc;
-        }
-
-        // 上下控制
-        if(this.cursors.up.isDown) {
-            accY -= playerAcc;
-        } else if(this.cursors.down.isDown) {
-            accY += playerAcc;
-        }
-
-        // 出界判断
-        const playerX = this.player.x;
-        const playerY = this.player.y;
-        const boundForce = 50;  // 退回的力道
-
-        if(playerX < 0) {
-            accX += -playerX * boundForce;
-        } else if(playerX > WIDTH) {
-            accX += (WIDTH - playerX) * boundForce;
-        }
-
-        if(playerY < 0) {
-            accY += -playerY * boundForce;
-        } else if(playerY > HEIGHT) {
-            accY += (HEIGHT - playerY) * boundForce;
-        }
-
-        const body = this.player.body as Phaser.Physics.Arcade.Body;
-        body.setAcceleration(accX, accY);
     }
 
-    private handleCrush(_player: Phaser.GameObjects.GameObject, rock: Phaser.GameObjects.GameObject) {
-        // rock disappear
-        this.rocks.killAndHide(rock);
-        this.physics.world.disable(rock);
+    // 出界判断
+    private wrapPlane() 
+    {
+        this.physics.world.wrap(this.plane);
+        
+        //TODO: 适配这段代码，或者不管它直接删掉
+        
+        // const WIDTH = this.scale.width;
+        // const HEIGHT = this.scale.height;
+        // console.log(this.plane);
+        // const playerX = this.plane.x;
+        // const playerY = this.plane.y;
+        // const boundForce = 50;  // 退回的力道
 
-        // decrease hp
-        this.hp--;
-        this.hpText.setText(`hp: ${this.hp}`);
+        // const body = this.plane.body as Phaser.Physics.Arcade.Body;
 
-        // sound
-        this.sound.play('impact');
+        // if(playerX < 0) {
+        //     body.acceleration.x += -playerX * boundForce;
+        // } else if(playerX > WIDTH) {
+        //     body.acceleration.x += (WIDTH - playerX) * boundForce;
+        // }
+
+        // if(playerY < 0) {
+        //     body.acceleration.y += -playerY * boundForce;
+        // } else if(playerY > HEIGHT) {
+        //     body.acceleration.y += (HEIGHT - playerY) * boundForce;
+        // }
+
+        // body.setAcceleration(accX, accY);
     }
 }
