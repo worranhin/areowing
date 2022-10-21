@@ -3,6 +3,7 @@
 // import CircleExample from './src/Example/Circle.js'
 import Phaser from 'phaser';
 // import './style.css';
+import Preloader from './scenes/Preloader.js';
 import Game from './scenes/Game.js';
 import GameOver from './scenes/GameOver.js';
 import GameStart from './scenes/GameStart.js';
@@ -25,7 +26,7 @@ const config/*: Phaser.Types.Core.GameConfig*/ = {
             debug: true,
         }
     },
-    scene: [GameStart, Game, GameOver],
+    scene: [Preloader, GameStart, Game, GameOver],
 };
 
 new Phaser.Game(config);

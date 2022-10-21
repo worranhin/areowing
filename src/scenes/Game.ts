@@ -22,13 +22,6 @@ export default class Game extends Phaser.Scene
 
     preload()
     {
-        this.load.path = './assets/';  // 路径前缀
-        this.load.image('sky', 'sky.png');
-        this.load.image('bomb', 'bomb.png');
-        this.load.image('rock', 'rock.png');
-        this.load.image('carrot', 'star.png');
-        this.load.audio('impact', "impact_sound.ogg");
-
         // create keyboard cursor input
         this.cursors = this.input.keyboard.createCursorKeys();
     }
