@@ -1,8 +1,9 @@
 import Phaser from "phaser";
+import SceneKeys from "../consts/SceneKeys";
 
 export default class GameStart extends Phaser.Scene {
     constructor() {
-        super('game-start');
+        super(SceneKeys.GameStart);
     }
 
     create() {
@@ -22,11 +23,11 @@ export default class GameStart extends Phaser.Scene {
         this.moveBelow(text_description, text_tips, gap);
 
         this.input.keyboard.once("keydown-SPACE", () => {
-            this.scene.start("game");
+            this.scene.start(SceneKeys.Game);
         })
     }
 
-    moveBelow(obj, target, gap) {
+    private moveBelow(obj: Phaser.GameObjects.Text, target: Phaser.GameObjects.Text, gap: number) {
         obj.setY(target.y + target.displayHeight * 0.5 +obj.displayHeight * 0.5 + gap);
     }
 }
