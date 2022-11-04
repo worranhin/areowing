@@ -6,10 +6,10 @@ A shooting game (STG).
 
 - [x] 搭建大致框架 | build the Framework
 - [x] controller
+- [x] refactor to ts
 - [ ] enemy
 - [ ] item
 - [ ] shooting
-- [ ] refactor to ts
 - [ ] story footprint
 
 ## Credits
